@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { MemoryQuest, PREDEFINED_QUESTS } from '@/types/memory-keeper';
-import { PlusCircle, Send } from 'lucide-react';
+import { PlusCircle, Send, BookOpen } from 'lucide-react';
+import Link from 'next/link';
 
 interface QuestSelectorProps {
   onQuestSelected: (quest: MemoryQuest) => void;
@@ -49,6 +50,17 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Navigation */}
+      <div className="flex justify-end mb-6">
+        <Link
+          href="/blog-list"
+          className="bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm border border-gray-200"
+        >
+          <BookOpen size={16} />
+          View All Stories
+        </Link>
+      </div>
+
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">
           Memory Keeper

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MemorySession, BlogPost } from '@/types/memory-keeper';
-import { ArrowLeft, Download, Share2, Heart, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Download, Share2, Heart, Copy, Check, BookOpen } from 'lucide-react';
+import Link from 'next/link';
 
 interface BlogPostViewerProps {
   session: MemorySession;
@@ -14,12 +15,29 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [isGenerating, setIsGenerating] = useState(true);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [savedBlogId, setSavedBlogId] = useState<string | null>(null);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [hasGenerated, setHasGenerated] = useState(false);
+  const isGeneratingRef = useRef(false);
+
+  // Create a stable session identifier
+  const sessionId = `${session.questTitle}-${session.messages.length}-${session.messages[session.messages.length - 1]?.content?.slice(0, 50) || ''}`;
 
   useEffect(() => {
-    generateBlogPost();
-  }, [session]); // generateBlogPost is stable and doesn't need to be in deps
+    // Only generate if we haven't already generated for this session and not currently generating
+    if (!hasGenerated && !isGeneratingRef.current) {
+      generateBlogPost();
+      setHasGenerated(true);
+    }
+  }, [sessionId, hasGenerated]);
 
   const generateBlogPost = async () => {
+    // Prevent multiple simultaneous calls
+    if (isGeneratingRef.current) {
+      return;
+    }
+    
+    isGeneratingRef.current = true;
     setIsGenerating(true);
     
     try {
@@ -36,6 +54,13 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
 
       const post = await response.json();
       setBlogPost(post);
+      
+      // Show success message if blog was saved
+      if (post.saved && post.id) {
+        setSavedBlogId(post.id);
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 5000);
+      }
     } catch (error) {
       console.error('Error generating blog post:', error);
       // Fallback blog post
@@ -48,6 +73,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
       });
     } finally {
       setIsGenerating(false);
+      isGeneratingRef.current = false;
     }
   };
 
@@ -75,6 +101,30 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const shareStory = async () => {
+    if (!blogPost) return;
+
+    const shareData = {
+      title: blogPost.title,
+      text: `Check out this memory story: ${blogPost.title}`,
+      url: window.location.href
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: copy title and content to clipboard
+        const shareText = `${blogPost.title}\n\n${blogPost.content}`;
+        await navigator.clipboard.writeText(shareText);
+        setCopiedText('story');
+        setTimeout(() => setCopiedText(null), 2000);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   };
 
   if (isGenerating) {
@@ -127,7 +177,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
           </div>
         </div>
         
-        <div className="flex gap-3">
+                <div className="flex gap-3">
           <button
             onClick={downloadAsText}
             className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
@@ -136,14 +186,44 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
             Download
           </button>
           <button
-            onClick={() => copyToClipboard(`${blogPost.title}\n\n${blogPost.content}`, 'story')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            onClick={shareStory}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
           >
-            {copiedText === 'story' ? <Check size={16} /> : <Copy size={16} />}
-            {copiedText === 'story' ? 'Copied!' : 'Copy Story'}
+            <Share2 size={16} />
+            Share
           </button>
+          <Link
+            href="/blog-list"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+          >
+            <BookOpen size={16} />
+            All Stories
+          </Link>
         </div>
       </div>
+
+      {/* Success Notification */}
+      {showSaveSuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-green-100 rounded-full p-2">
+              <Check size={20} className="text-green-600" />
+            </div>
+            <div>
+              <p className="text-green-800 font-medium">Story saved successfully!</p>
+              <p className="text-green-600 text-sm">Your memory story has been preserved for your family.</p>
+            </div>
+          </div>
+          {savedBlogId && (
+            <Link
+              href={`/blog/${savedBlogId}`}
+              className="text-green-700 hover:text-green-800 text-sm underline"
+            >
+              View saved story
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Blog Post Content */}
       <div className="bg-white rounded-lg shadow-lg p-8 mb-8">

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MemoryQuest, ConversationMessage, MemorySession } from '@/types/memory-keeper';
-import { Send, ArrowLeft, BookOpen, Mic, MicOff } from 'lucide-react';
+import { Send, ArrowLeft, BookOpen, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 
 interface ConversationInterfaceProps {
   quest: MemoryQuest;
@@ -27,6 +27,11 @@ export default function ConversationInterface({
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMockMode, setIsMockMode] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState(true);
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const lastSpeechRequest = useRef<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -37,6 +42,56 @@ export default function ConversationInterface({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Track user interaction for speech synthesis (required by browsers)
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setUserInteracted(true);
+      console.log('User interaction detected - speech synthesis enabled');
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('keydown', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+    };
+  }, []);
+
+  // Load voices and set up speech synthesis
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          setVoicesLoaded(true);
+          console.log('Voices loaded:', voices.length);
+        }
+      };
+
+      // Load voices immediately if available
+      loadVoices();
+
+      // Also listen for the voiceschanged event
+      window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+
+      return () => {
+        window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+      };
+    }
+  }, []);
+
+  // Speak the initial question when component loads and voices are ready
+  useEffect(() => {
+    if (autoSpeak && voicesLoaded && userInteracted && messages.length === 1 && messages[0].type === 'ai') {
+      // Delay to ensure component is fully loaded and voices are available
+      setTimeout(() => {
+        console.log('Speaking initial message:', messages[0].content);
+        speakText(messages[0].content);
+      }, 800);
+    }
+  }, [autoSpeak, voicesLoaded, userInteracted, messages]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -63,6 +118,128 @@ export default function ConversationInterface({
       };
     }
   }, []);
+
+  // Text-to-Speech functionality
+  const speakText = (text: string) => {
+    console.log('Attempting to speak:', text);
+    console.log('Auto-speak:', autoSpeak, 'User interacted:', userInteracted, 'Voices loaded:', voicesLoaded);
+    
+    // Prevent duplicate requests for the same text
+    if (lastSpeechRequest.current === text && isSpeaking) {
+      console.log('Ignoring duplicate speech request');
+      return;
+    }
+    
+    lastSpeechRequest.current = text;
+    
+    if (!('speechSynthesis' in window)) {
+      console.error('Speech synthesis not supported');
+      return;
+    }
+
+    if (!autoSpeak) {
+      console.log('Auto-speak is disabled');
+      return;
+    }
+
+    if (!userInteracted) {
+      console.log('Waiting for user interaction before speaking');
+      return;
+    }
+
+    try {
+      // Only cancel if something is currently speaking
+      if (window.speechSynthesis.speaking) {
+        console.log('Canceling previous speech...');
+        window.speechSynthesis.cancel();
+        // Small delay to allow cancellation to complete
+        setTimeout(() => startSpeech(text), 150);
+      } else {
+        startSpeech(text);
+      }
+    } catch (error) {
+      console.error('Error in speakText:', error);
+      setIsSpeaking(false);
+    }
+  };
+
+  const startSpeech = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.85; // Slower, more thoughtful pace
+    utterance.pitch = 1.1; // Slightly higher pitch for warmth
+    utterance.volume = 0.7; // Softer volume
+    
+    // Get voices and select preferred one
+    const voices = window.speechSynthesis.getVoices();
+    console.log('Available voices:', voices.length);
+    
+    if (voices.length > 0) {
+      const preferredVoice = voices.find(voice => 
+        (voice.name.includes('Google') && voice.name.includes('Female')) ||
+        (voice.name.includes('Microsoft') && voice.name.includes('Zira')) ||
+        (voice.name.includes('Samantha')) ||
+        (voice.name.includes('Female')) ||
+        (voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female'))
+      ) || voices.find(voice => 
+        voice.name.includes('Google') || 
+        voice.name.includes('Microsoft') ||
+        voice.lang.startsWith('en')
+      ) || voices[0]; // Fallback to first available voice
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+        console.log('Using voice:', preferredVoice.name);
+      }
+    }
+    
+    utterance.onstart = () => {
+      console.log('Speech started');
+      setIsSpeaking(true);
+    };
+    
+    utterance.onend = () => {
+      console.log('Speech ended');
+      setIsSpeaking(false);
+    };
+    
+    utterance.onerror = (event) => {
+      // Don't log "canceled" errors as they're expected when interrupting speech
+      if (event.error !== 'canceled') {
+        console.error('Speech error:', event.error);
+      } else {
+        console.log('Speech was canceled (this is normal when switching between messages)');
+      }
+      setIsSpeaking(false);
+    };
+    
+    console.log('Starting speech synthesis...');
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      console.log('Stopping speech...');
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  const toggleAutoSpeak = () => {
+    setAutoSpeak(!autoSpeak);
+    if (!autoSpeak) {
+      // If turning on auto-speak, speak the last AI message
+      const lastAiMessage = messages.filter(m => m.type === 'ai').slice(-1)[0];
+      if (lastAiMessage) {
+        speakText(lastAiMessage.content);
+      }
+    } else {
+      stopSpeaking();
+    }
+  };
+
+  const testVoice = () => {
+    speakText("Hello! This is a test of the voice assistant. Can you hear me?");
+  };
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
@@ -117,15 +294,25 @@ export default function ConversationInterface({
       };
 
       setMessages([...newMessages, aiMessage]);
+      
+      // Speak the AI response if auto-speak is enabled
+      if (autoSpeak) {
+        setTimeout(() => speakText(question), 500); // Small delay to ensure message is rendered
+      }
     } catch (error) {
       console.error('Error generating follow-up:', error);
       const errorMessage: ConversationMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: "I'd love to hear more about that. Can you tell me another detail that stood out to you?",
+        content: "Oh, that sounds so wonderful! I'm absolutely loving hearing about this. Please tell me more - what details do you remember most vividly?",
         timestamp: new Date()
       };
       setMessages([...newMessages, errorMessage]);
+      
+      // Speak the error message if auto-speak is enabled
+      if (autoSpeak) {
+        setTimeout(() => speakText(errorMessage.content), 500);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -167,23 +354,59 @@ export default function ConversationInterface({
           </div>
         </div>
         
-        {isMockMode && (
-          <div className="bg-orange-100 border border-orange-300 rounded-lg px-3 py-2 mr-4">
-            <p className="text-xs text-orange-800">
-              🤖 <strong>Mock Mode</strong> - Add your Gemini API key for real AI responses
-            </p>
+        <div className="flex items-center gap-3">
+          {/* TTS Controls */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleAutoSpeak}
+              className={`p-2 rounded-lg transition-colors ${
+                autoSpeak 
+                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title={autoSpeak ? 'Turn off AI voice' : 'Turn on AI voice'}
+            >
+              {autoSpeak ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            </button>
+            
+            {/* Test voice button - for debugging */}
+            <button
+              onClick={testVoice}
+              className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition-colors"
+              title="Test voice"
+            >
+              Test
+            </button>
+            
+            {isSpeaking && (
+              <button
+                onClick={stopSpeaking}
+                className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                title="Stop speaking"
+              >
+                <VolumeX size={20} />
+              </button>
+            )}
           </div>
-        )}
-        
-        {userMessageCount >= 3 && (
-          <button
-            onClick={handleFinishSession}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-          >
-            <BookOpen size={16} />
-            Create Story
-          </button>
-        )}
+          
+          {isMockMode && (
+            <div className="bg-orange-100 border border-orange-300 rounded-lg px-3 py-2">
+              <p className="text-xs text-orange-800">
+                🤖 <strong>Mock Mode</strong> - Add your Gemini API key for real AI responses
+              </p>
+            </div>
+          )}
+          
+          {userMessageCount >= 3 && (
+            <button
+              onClick={handleFinishSession}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+            >
+              <BookOpen size={16} />
+              Create Story
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
@@ -201,6 +424,26 @@ export default function ConversationInterface({
                     : 'bg-white text-gray-800 shadow-sm mr-12'
                 }`}
               >
+                {message.type === 'ai' && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-gray-500">💕 Your Story Companion</span>
+                    {isSpeaking && (
+                      <div className="flex items-center gap-1">
+                        <Volume2 size={12} className="text-blue-600" />
+                        <span className="text-xs text-blue-600">Speaking...</span>
+                      </div>
+                    )}
+                    {autoSpeak && !isSpeaking && (
+                      <button
+                        onClick={() => speakText(message.content)}
+                        className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Hear this question again"
+                      >
+                        🎵 Hear again
+                      </button>
+                    )}
+                  </div>
+                )}
                 <p className="text-sm leading-relaxed">{message.content}</p>
                 <p className={`text-xs mt-2 ${
                   message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
