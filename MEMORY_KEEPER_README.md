@@ -1,3 +1,5 @@
+# Note: Please open the website in Safari browser to see all the features in working condition.
+
 # Memory Keeper - AI-Powered Story Collection for Grandparents
 
 A "Duolingo for Stories" application that helps grandparents share their precious memories through guided conversations with Sarah, your warm AI memory guide. Transform grandparent wisdom into beautiful, shareable stories that preserve family legacies for future generations.
