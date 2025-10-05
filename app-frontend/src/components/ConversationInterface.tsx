@@ -109,16 +109,26 @@ export default function ConversationInterface({
 
   // Initialize speech recognition
   useEffect(() => {
+    console.log('Initializing speech recognition...');
+    console.log('Window object available:', typeof window !== 'undefined');
+    
     if (typeof window !== 'undefined') {
+      console.log('Checking for speech recognition APIs...');
+      console.log('webkitSpeechRecognition available:', 'webkitSpeechRecognition' in window);
+      console.log('SpeechRecognition available:', 'SpeechRecognition' in window);
+      
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition; // eslint-disable-line @typescript-eslint/no-explicit-any
       
       if (SpeechRecognition) {
+        console.log('Speech recognition API found, creating instance...');
         try {
           recognitionRef.current = new SpeechRecognition();
           recognitionRef.current.continuous = true;
           recognitionRef.current.interimResults = true;
           recognitionRef.current.lang = 'en-US';
           recognitionRef.current.maxAlternatives = 1;
+          
+          console.log('Speech recognition configured successfully');
 
           recognitionRef.current.onresult = (event: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
             let finalTranscript = '';
@@ -373,8 +383,12 @@ export default function ConversationInterface({
   };
 
   const toggleListening = async () => {
+    console.log('Toggle listening called, recognitionRef exists:', !!recognitionRef.current);
+    console.log('Browser:', navigator.userAgent);
+    console.log('Speech Recognition support:', 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+    
     if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      alert('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
       return;
     }
 
@@ -540,9 +554,16 @@ export default function ConversationInterface({
                 <span className="text-green-700 font-medium">Sarah can hear you</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full border border-gray-200">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-600">Voice chat unavailable</span>
+              <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full border border-red-200">
+                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                <span className="text-red-600">Voice not working?</span>
+                <button 
+                  onClick={() => window.open('https://support.google.com/chrome/answer/2693767', '_blank')}
+                  className="text-blue-600 hover:text-blue-800 underline ml-1"
+                  title="Chrome microphone help"
+                >
+                  Help
+                </button>
               </div>
             )}
           </div>
@@ -768,6 +789,25 @@ export default function ConversationInterface({
             : ' You can create your story now or continue sharing!'
           }
         </p>
+        
+        {/* Chrome Voice Troubleshooting */}
+        {!recognitionRef.current && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="text-sm font-medium text-blue-800 mb-2">🎤 Voice Assistant Not Working?</h4>
+            <div className="text-xs text-blue-700 space-y-1">
+              <p><strong>For Chrome users:</strong></p>
+              <ol className="list-decimal list-inside space-y-1 ml-2">
+                <li>Click the 🔒 lock icon next to the URL</li>
+                <li>Set Microphone to &ldquo;Allow&rdquo;</li>
+                <li>Reload the page</li>
+                <li>Make sure you&rsquo;re using HTTPS (not HTTP)</li>
+              </ol>
+              <p className="mt-2">
+                <strong>Still not working?</strong> Try restarting Chrome or check your system microphone settings.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
