@@ -3,14 +3,9 @@ import { gemini } from '@/lib/supbase/client';
 
 export async function GET() {
   try {
-    // Try different model names to see which one works
+    // Test only the specified model
     const modelNames = [
-      'gemini-pro',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'models/gemini-pro',
-      'models/gemini-1.5-flash',
-      'models/gemini-1.5-pro'
+      'gemini-2.5-flash'
     ];
 
     const results = [];

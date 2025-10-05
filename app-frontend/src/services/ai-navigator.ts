@@ -2,7 +2,20 @@ import { gemini } from '@/lib/supbase/client';
 import { ConversationMessage, BlogPost } from '@/types/memory-keeper';
 
 export class AIStoryNavigator {
-  private model = gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  private model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  private extractJsonFromResponse(text: string): string {
+    // Remove markdown code block formatting if present
+    const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
+    const match = text.match(codeBlockRegex);
+    
+    if (match) {
+      return match[1].trim();
+    }
+    
+    // If no code blocks, return the text as is (might already be clean JSON)
+    return text.trim();
+  }
 
   async generateFollowUpQuestion(
     questTheme: string,
@@ -116,7 +129,8 @@ Format your response as JSON:
     try {
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
-      const jsonResponse = JSON.parse(response.text());
+      const cleanJsonText = this.extractJsonFromResponse(response.text());
+      const jsonResponse = JSON.parse(cleanJsonText);
       
       return {
         title: jsonResponse.title,
@@ -127,6 +141,16 @@ Format your response as JSON:
       };
     } catch (error) {
       console.error('Error generating blog post:', error);
+      if (error instanceof SyntaxError) {
+        // Log the raw response to help debug JSON parsing issues
+        try {
+          const result = await this.model.generateContent(prompt);
+          const response = await result.response;
+          console.error('Raw response that failed to parse:', response.text());
+        } catch (debugError) {
+          console.error('Could not retrieve raw response for debugging:', debugError);
+        }
+      }
       return {
         title: `Memories from ${questTitle}`,
         content: `This is a collection of precious memories shared about ${questTitle}. ${userMessages.slice(0, 200)}...`,

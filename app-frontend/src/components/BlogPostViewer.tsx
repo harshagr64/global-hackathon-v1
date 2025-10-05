@@ -122,7 +122,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Your Memory Story</h1>
             <p className="text-sm text-gray-600">
-              Generated on {blogPost.generatedAt.toLocaleDateString()}
+              Generated on {new Date(blogPost.generatedAt).toLocaleDateString()}
             </p>
           </div>
         </div>
