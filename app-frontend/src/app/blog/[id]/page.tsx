@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { StoredBlogPost } from '@/services/blog-post-service';
 import { ArrowLeft, Calendar, Download, Share2, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 
-export default function BlogDetailPage({ params }: { params: { id: string } }) {
+export default function BlogDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const [blogPost, setBlogPost] = useState<StoredBlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,14 +14,14 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchBlogPost();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   const fetchBlogPost = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`/api/blog-posts/${params.id}`);
+      const response = await fetch(`/api/blog-posts/${resolvedParams.id}`);
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Blog post not found');

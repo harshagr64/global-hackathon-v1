@@ -15,6 +15,8 @@ export default function ConversationInterface({
   onBack, 
   onSessionComplete 
 }: ConversationInterfaceProps) {
+  console.log('ConversationInterface: Voice Assistant Component Loaded');
+  
   const [messages, setMessages] = useState<ConversationMessage[]>([
     {
       id: '1',
@@ -64,9 +66,19 @@ export default function ConversationInterface({
     if ('speechSynthesis' in window) {
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
+        console.log('Loading voices, found:', voices.length);
         if (voices.length > 0) {
           setVoicesLoaded(true);
-          console.log('Voices loaded:', voices.length);
+          console.log('Voices loaded successfully:', voices.map(v => v.name));
+        } else {
+          // Sometimes voices take time to load, retry after a short delay
+          setTimeout(() => {
+            const retryVoices = window.speechSynthesis.getVoices();
+            if (retryVoices.length > 0) {
+              setVoicesLoaded(true);
+              console.log('Voices loaded on retry:', retryVoices.length);
+            }
+          }, 100);
         }
       };
 
@@ -79,6 +91,8 @@ export default function ConversationInterface({
       return () => {
         window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
       };
+    } else {
+      console.warn('Speech synthesis not supported in this browser');
     }
   }, []);
 
@@ -95,29 +109,88 @@ export default function ConversationInterface({
 
   // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+    if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition; // eslint-disable-line @typescript-eslint/no-explicit-any
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
+      
+      if (SpeechRecognition) {
+        try {
+          recognitionRef.current = new SpeechRecognition();
+          recognitionRef.current.continuous = true;
+          recognitionRef.current.interimResults = true;
+          recognitionRef.current.lang = 'en-US';
+          recognitionRef.current.maxAlternatives = 1;
 
-      recognitionRef.current.onresult = (event: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        if (finalTranscript) {
-          setCurrentInput(prev => prev + finalTranscript);
-        }
-      };
+          recognitionRef.current.onresult = (event: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+              }
+            }
+            if (finalTranscript) {
+              setCurrentInput(prev => prev + finalTranscript);
+            }
+          };
 
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
+          recognitionRef.current.onend = () => {
+            console.log('Speech recognition ended');
+            setIsListening(false);
+          };
+
+          recognitionRef.current.onerror = (event: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            console.error('Speech recognition error:', event.error);
+            setIsListening(false);
+            
+            // Handle specific errors
+            switch(event.error) {
+              case 'not-allowed':
+                alert('Microphone access denied. Please allow microphone access and try again.');
+                break;
+              case 'no-speech':
+                console.log('No speech detected, continuing...');
+                break;
+              case 'audio-capture':
+                alert('No microphone found. Please check your audio settings.');
+                break;
+              case 'network':
+                alert('Network error occurred during speech recognition.');
+                break;
+              default:
+                console.log('Speech recognition error:', event.error);
+            }
+          };
+
+          recognitionRef.current.onstart = () => {
+            console.log('Speech recognition started');
+          };
+
+        } catch (error) {
+          console.error('Error initializing speech recognition:', error);
+        }
+      } else {
+        console.log('Speech recognition not supported in this browser');
+      }
     }
   }, []);
+
+  // Cleanup effect - stop speech and recognition when component unmounts
+  useEffect(() => {
+    return () => {
+      // Stop speech synthesis
+      if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Stop speech recognition
+      if (recognitionRef.current && isListening) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.log('Error stopping recognition on cleanup:', error);
+        }
+      }
+    };
+  }, [isListening]);
 
   // Text-to-Speech functionality
   const speakText = (text: string) => {
@@ -164,56 +237,114 @@ export default function ConversationInterface({
   };
 
   const startSpeech = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.85; // Slower, more thoughtful pace
-    utterance.pitch = 1.1; // Slightly higher pitch for warmth
-    utterance.volume = 0.7; // Softer volume
-    
-    // Get voices and select preferred one
-    const voices = window.speechSynthesis.getVoices();
-    console.log('Available voices:', voices.length);
-    
-    if (voices.length > 0) {
-      const preferredVoice = voices.find(voice => 
-        (voice.name.includes('Google') && voice.name.includes('Female')) ||
-        (voice.name.includes('Microsoft') && voice.name.includes('Zira')) ||
-        (voice.name.includes('Samantha')) ||
-        (voice.name.includes('Female')) ||
-        (voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female'))
-      ) || voices.find(voice => 
-        voice.name.includes('Google') || 
-        voice.name.includes('Microsoft') ||
-        voice.lang.startsWith('en')
-      ) || voices[0]; // Fallback to first available voice
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
       
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-        console.log('Using voice:', preferredVoice.name);
-      }
-    }
-    
-    utterance.onstart = () => {
-      console.log('Speech started');
-      setIsSpeaking(true);
-    };
-    
-    utterance.onend = () => {
-      console.log('Speech ended');
-      setIsSpeaking(false);
-    };
-    
-    utterance.onerror = (event) => {
-      // Don't log "canceled" errors as they're expected when interrupting speech
-      if (event.error !== 'canceled') {
-        console.error('Speech error:', event.error);
+      // Enhanced voice parameters for warmth, curiosity, and human-like quality
+      utterance.rate = 0.75; // Slower, more conversational pace - like a caring grandparent
+      utterance.pitch = 1.2; // Warmer, more nurturing pitch 
+      utterance.volume = 0.8; // Clear but gentle volume
+      
+      // Add natural pauses for curiosity and warmth
+      const enhancedText = text
+        .replace(/\?/g, '? ') // Slight pause after questions for curiosity
+        .replace(/\./g, '. ') // Pause after statements for thoughtfulness
+        .replace(/,/g, ', ') // Natural pauses for flow
+        .replace(/!/g, '! '); // Enthusiastic pauses
+      
+      utterance.text = enhancedText;
+      
+      // Get voices and select the warmest, most human-like voice
+      const voices = window.speechSynthesis.getVoices();
+      console.log('Available voices for speech:', voices.length);
+      
+      if (voices.length > 0) {
+        // Prioritize warm, nurturing voices - like a caring friend or family member
+        const preferredVoice = voices.find(voice => 
+          voice.lang.startsWith('en') && (
+            // Premium warm voices
+            voice.name.includes('Samantha') || // macOS warm voice
+            voice.name.includes('Moira') ||    // macOS friendly voice
+            voice.name.includes('Fiona') ||    // macOS Scottish accent
+            voice.name.includes('Karen') ||    // Australian warm voice
+            voice.name.includes('Tessa') ||    // South African warm voice
+            // Google female voices (usually warmer)
+            (voice.name.includes('Google') && voice.name.toLowerCase().includes('female')) ||
+            // Microsoft warm voices
+            voice.name.includes('Zira') ||     // Microsoft warm female voice
+            voice.name.includes('Hazel') ||    // Microsoft UK voice
+            // Generic female indicators
+            voice.name.toLowerCase().includes('female') ||
+            voice.name.toLowerCase().includes('woman') ||
+            voice.name.toLowerCase().includes('girl')
+          )
+        ) || voices.find(voice => 
+          // Fallback to any good English voice
+          voice.lang.startsWith('en') && (
+            voice.name.includes('Google') || 
+            voice.name.includes('Microsoft') ||
+            voice.name.includes('Apple') ||
+            voice.name.includes('Natural') ||
+            voice.name.includes('Enhanced')
+          )
+        ) || voices.find(voice => 
+          // Any English voice
+          voice.lang.startsWith('en-US') || voice.lang.startsWith('en-GB')
+        ) || voices.find(voice => 
+          voice.lang.startsWith('en')
+        ) || voices[0];
+        
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+          console.log('Using warm voice:', preferredVoice.name, 'Language:', preferredVoice.lang);
+        } else {
+          console.log('No preferred voice found, using default');
+        }
       } else {
-        console.log('Speech was canceled (this is normal when switching between messages)');
+        console.warn('No voices available for speech synthesis');
       }
+      
+      utterance.onstart = () => {
+        console.log('Speech started');
+        setIsSpeaking(true);
+      };
+      
+      utterance.onend = () => {
+        console.log('Speech ended');
+        setIsSpeaking(false);
+      };
+      
+      utterance.onerror = (event) => {
+        // Don't log "canceled" errors as they're expected when interrupting speech
+        if (event.error !== 'canceled') {
+          console.error('Speech synthesis error:', event.error);
+          // Handle specific errors
+          switch(event.error) {
+            case 'network':
+              console.log('Network error during speech synthesis');
+              break;
+            case 'synthesis-failed':
+              console.log('Speech synthesis failed');
+              break;
+            case 'synthesis-unavailable':
+              console.log('Speech synthesis unavailable');
+              break;
+            default:
+              console.log('Unknown speech synthesis error:', event.error);
+          }
+        } else {
+          console.log('Speech was canceled (this is normal when switching between messages)');
+        }
+        setIsSpeaking(false);
+      };
+      
+      console.log('Starting speech synthesis for text:', text.substring(0, 50) + '...');
+      window.speechSynthesis.speak(utterance);
+      
+    } catch (error) {
+      console.error('Error in startSpeech:', error);
       setIsSpeaking(false);
-    };
-    
-    console.log('Starting speech synthesis...');
-    window.speechSynthesis.speak(utterance);
+    }
   };
 
   const stopSpeaking = () => {
@@ -238,21 +369,47 @@ export default function ConversationInterface({
   };
 
   const testVoice = () => {
-    speakText("Hello! This is a test of the voice assistant. Can you hear me?");
+    speakText("Hi there! I'm Sarah, your memory guide. I'm so excited to hear your stories! Can you hear my voice clearly?");
   };
 
-  const toggleListening = () => {
+  const toggleListening = async () => {
     if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser');
+      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
       return;
     }
 
     if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+      try {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      } catch (error) {
+        console.error('Error stopping speech recognition:', error);
+        setIsListening(false);
+      }
     } else {
-      recognitionRef.current.start();
-      setIsListening(true);
+      try {
+        // Check microphone permission first
+        if (navigator.permissions) {
+          const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+          if (permission.state === 'denied') {
+            alert('Microphone access is denied. Please enable microphone access in your browser settings and reload the page.');
+            return;
+          }
+        }
+
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setIsListening(false);
+        
+        // Check if it's a permission error
+        if (error instanceof Error && error.message.includes('not-allowed')) {
+          alert('Microphone access denied. Please allow microphone access and try again.');
+        } else {
+          alert('Could not start voice recognition. Please check your microphone and try again.');
+        }
+      }
     }
   };
 
@@ -336,53 +493,88 @@ export default function ConversationInterface({
   return (
     <div className="max-w-4xl mx-auto p-6 h-screen flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 bg-white rounded-lg shadow-sm p-4">
+      <div className="flex items-center justify-between mb-6 bg-white rounded-lg shadow-sm p-4 border border-gray-100">
         <div className="flex items-center">
           <button
             onClick={onBack}
-            className="mr-4 text-gray-600 hover:text-gray-800"
+            className="mr-4 text-gray-600 hover:text-gray-800 transition-colors"
           >
             <ArrowLeft size={24} />
           </button>
-          <span className="text-2xl mr-3">{quest.icon}</span>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800">{quest.title}</h2>
-            <p className="text-sm text-gray-600">
-              {userMessageCount} responses shared
-              {isMockMode && ' • Mock Mode Active'}
-            </p>
+          
+          {/* AI Companion Info */}
+          <div className="flex items-center mr-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center shadow-sm border-2 border-white mr-3">
+              <span className="text-2xl">👩‍💻</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-purple-700">Sarah</h3>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Online & Ready"></div>
+              </div>
+              <p className="text-xs text-gray-500">Your Memory Guide & Storytelling Companion</p>
+            </div>
+          </div>
+          
+          {/* Quest Info */}
+          <div className="border-l border-gray-200 pl-4">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">{quest.icon}</span>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">{quest.title}</h2>
+                <p className="text-sm text-gray-600">
+                  {userMessageCount} memories shared
+                  {isMockMode && ' • Mock Mode Active'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Voice Feature Status */}
+          <div className="flex items-center gap-2 text-xs">
+            {recognitionRef.current ? (
+              <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-full border border-green-200">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-700 font-medium">Sarah can hear you</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full border border-gray-200">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <span className="text-gray-600">Voice chat unavailable</span>
+              </div>
+            )}
+          </div>
+          
           {/* TTS Controls */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleAutoSpeak}
               className={`p-2 rounded-lg transition-colors ${
                 autoSpeak 
-                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                  ? 'bg-purple-100 text-purple-600 hover:bg-purple-200' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
-              title={autoSpeak ? 'Turn off AI voice' : 'Turn on AI voice'}
+              title={autoSpeak ? "Mute Sarah's voice" : "Unmute Sarah's voice"}
             >
               {autoSpeak ? <Volume2 size={20} /> : <VolumeX size={20} />}
             </button>
             
-            {/* Test voice button - for debugging */}
+            {/* Test voice button */}
             <button
               onClick={testVoice}
-              className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition-colors"
-              title="Test voice"
+              className="px-3 py-1 text-xs bg-pink-100 text-pink-700 rounded-full hover:bg-pink-200 transition-colors font-medium"
+              title="Test Sarah's voice"
             >
-              Test
+              👋 Say Hi
             </button>
             
             {isSpeaking && (
               <button
                 onClick={stopSpeaking}
-                className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                title="Stop speaking"
+                className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors animate-pulse"
+                title="Stop Sarah from speaking"
               >
                 <VolumeX size={20} />
               </button>
@@ -417,43 +609,75 @@ export default function ConversationInterface({
               key={message.id}
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
+              {/* AI Avatar */}
+              {message.type === 'ai' && (
+                <div className="flex-shrink-0 mr-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center shadow-sm border-2 border-white">
+                    <span className="text-lg">👩‍💻</span>
+                  </div>
+                </div>
+              )}
+              
               <div
-                className={`max-w-3xl px-4 py-3 rounded-lg ${
+                className={`max-w-3xl px-4 py-3 rounded-lg relative ${
                   message.type === 'user'
-                    ? 'bg-blue-600 text-white ml-12'
-                    : 'bg-white text-gray-800 shadow-sm mr-12'
+                    ? 'bg-blue-600 text-white ml-12 rounded-tr-sm'
+                    : 'bg-white text-gray-800 shadow-md border border-gray-100 rounded-tl-sm'
                 }`}
               >
                 {message.type === 'ai' && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-gray-500">💕 Your Story Companion</span>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-purple-600">Sarah, Your Memory Guide</span>
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" title="Online"></div>
+                    </div>
                     {isSpeaking && (
-                      <div className="flex items-center gap-1">
-                        <Volume2 size={12} className="text-blue-600" />
-                        <span className="text-xs text-blue-600">Speaking...</span>
+                      <div className="flex items-center gap-1 ml-auto">
+                        <div className="flex gap-1">
+                          <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"></div>
+                          <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        </div>
+                        <span className="text-xs text-blue-600 ml-1">Speaking...</span>
                       </div>
                     )}
                     {autoSpeak && !isSpeaking && (
                       <button
                         onClick={() => speakText(message.content)}
-                        className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
+                        className="text-xs text-gray-400 hover:text-purple-600 transition-colors ml-auto px-2 py-1 rounded hover:bg-purple-50"
                         title="Hear this question again"
                       >
-                        🎵 Hear again
+                        � Hear again
                       </button>
                     )}
                   </div>
                 )}
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <p className={`${message.type === 'ai' ? 'text-gray-700' : 'text-white'} leading-relaxed`}>
+                  {message.content}
+                </p>
                 <p className={`text-xs mt-2 ${
-                  message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                  message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
                 }`}>
                   {message.timestamp.toLocaleTimeString([], { 
                     hour: '2-digit', 
                     minute: '2-digit' 
                   })}
                 </p>
+                
+                {/* Chat bubble tail for AI messages */}
+                {message.type === 'ai' && (
+                  <div className="absolute left-0 top-4 transform -translate-x-1 w-2 h-2 bg-white border-l border-b border-gray-100 rotate-45"></div>
+                )}
               </div>
+              
+              {/* User Avatar */}
+              {message.type === 'user' && (
+                <div className="flex-shrink-0 ml-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-200 to-indigo-200 flex items-center justify-center shadow-sm border-2 border-white">
+                    <span className="text-lg">👤</span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           
@@ -472,25 +696,51 @@ export default function ConversationInterface({
       </div>
 
       {/* Input */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        {/* Voice status indicator */}
+        {isListening && (
+          <div className="mb-3 flex items-center gap-2 text-sm bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-red-700 font-medium">Sarah is listening... Speak now</span>
+            <div className="ml-auto flex gap-1">
+              <div className="w-1 h-4 bg-red-400 rounded animate-pulse"></div>
+              <div className="w-1 h-3 bg-red-400 rounded animate-pulse" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-1 h-5 bg-red-400 rounded animate-pulse" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-1 h-2 bg-red-400 rounded animate-pulse" style={{animationDelay: '0.3s'}}></div>
+            </div>
+          </div>
+        )}
+        
         <div className="flex gap-3">
           <button
             onClick={toggleListening}
-            className={`px-3 py-2 rounded-lg transition-colors ${
+            className={`px-3 py-2 rounded-lg transition-all duration-200 relative ${
               isListening 
-                ? 'bg-red-600 text-white hover:bg-red-700' 
-                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg scale-105' 
+                : recognitionRef.current 
+                  ? 'bg-purple-100 text-purple-600 hover:bg-purple-200 hover:shadow-md' 
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
-            title={isListening ? 'Stop recording' : 'Start voice input'}
+            title={
+              !recognitionRef.current 
+                ? 'Voice input not supported in this browser' 
+                : isListening 
+                  ? 'Stop recording (Sarah is listening)' 
+                  : 'Start voice chat with Sarah'
+            }
+            disabled={!recognitionRef.current}
           >
             {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+            {isListening && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+            )}
           </button>
           
           <textarea
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
-            placeholder="Share your memory here... Feel free to include as many details as you'd like!"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[60px]"
+            placeholder="Tell Sarah about your memory... I'm here to listen and would love to hear every detail! 💕"
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none min-h-[60px] placeholder:text-gray-400"
             rows={2}
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -504,10 +754,10 @@ export default function ConversationInterface({
           <button
             onClick={handleSendMessage}
             disabled={!currentInput.trim() || isLoading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 flex items-center gap-2"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:bg-gray-400 flex items-center gap-2 shadow-sm hover:shadow-md"
           >
             <Send size={16} />
-            Share
+            Share with Sarah
           </button>
         </div>
         
