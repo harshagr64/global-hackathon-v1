@@ -23,8 +23,8 @@ export class MockAINavigator {
   private questionIndex = 0;
 
   async generateFollowUpQuestion(
-    questTheme: string,
-    conversationHistory: ConversationMessage[]
+    _questTheme: string,
+    _conversationHistory: ConversationMessage[]
   ): Promise<string> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));

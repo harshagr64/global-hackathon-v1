@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { gemini } from '@/lib/supbase/client';
 
 export async function GET() {

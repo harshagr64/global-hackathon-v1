@@ -105,7 +105,7 @@ export default function ConversationInterface({
         speakText(messages[0].content);
       }, 800);
     }
-  }, [autoSpeak, voicesLoaded, userInteracted, messages]);
+  }, [autoSpeak, voicesLoaded, userInteracted, messages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize speech recognition
   useEffect(() => {

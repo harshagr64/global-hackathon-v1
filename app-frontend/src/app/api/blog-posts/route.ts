@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { BlogPostService } from '@/services/blog-post-service';
 
 export async function GET() {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MemorySession, BlogPost } from '@/types/memory-keeper';
 import { ArrowLeft, Download, Share2, Heart, Copy, Check, BookOpen } from 'lucide-react';
 import Link from 'next/link';
@@ -21,17 +21,9 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
   const isGeneratingRef = useRef(false);
 
   // Create a stable session identifier
-  const sessionId = `${session.questTitle}-${session.messages.length}-${session.messages[session.messages.length - 1]?.content?.slice(0, 50) || ''}`;
+  const sessionId = session.id;
 
-  useEffect(() => {
-    // Only generate if we haven't already generated for this session and not currently generating
-    if (!hasGenerated && !isGeneratingRef.current) {
-      generateBlogPost();
-      setHasGenerated(true);
-    }
-  }, [sessionId, hasGenerated]);
-
-  const generateBlogPost = async () => {
+  const generateBlogPost = useCallback(async () => {
     // Prevent multiple simultaneous calls
     if (isGeneratingRef.current) {
       return;
@@ -75,7 +67,15 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
       setIsGenerating(false);
       isGeneratingRef.current = false;
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    // Only generate if we haven't already generated for this session and not currently generating
+    if (!hasGenerated && !isGeneratingRef.current) {
+      generateBlogPost();
+      setHasGenerated(true);
+    }
+  }, [sessionId, hasGenerated, generateBlogPost]);
 
   const copyToClipboard = async (text: string, type: string) => {
     try {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
 import { StoredBlogPost } from '@/services/blog-post-service';
 import { ArrowLeft, Calendar, Download, Share2, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
@@ -12,11 +12,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
   const [error, setError] = useState<string | null>(null);
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchBlogPost();
-  }, [resolvedParams.id]);
-
-  const fetchBlogPost = async () => {
+  const fetchBlogPost = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -37,7 +33,11 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [resolvedParams.id]);
+
+  useEffect(() => {
+    fetchBlogPost();
+  }, [fetchBlogPost]);
 
   const copyToClipboard = async (text: string, type: string) => {
     try {
@@ -211,7 +211,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
             <ul className="space-y-3">
               {blogPost.wisdom.map((wisdom, index) => (
                 <li key={index} className="text-amber-900 italic border-l-4 border-amber-400 pl-4">
-                  "{wisdom}"
+                  &ldquo;{wisdom}&rdquo;
                 </li>
               ))}
             </ul>
