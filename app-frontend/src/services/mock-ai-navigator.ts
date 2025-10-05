@@ -23,9 +23,12 @@ export class MockAINavigator {
   private questionIndex = 0;
 
   async generateFollowUpQuestion(
-    _questTheme: string,
-    _conversationHistory: ConversationMessage[]
+    questTheme: string,
+    conversationHistory: ConversationMessage[]
   ): Promise<string> {
+    // Use the parameters to prevent unused variable warnings
+    console.log('Generating follow-up for theme:', questTheme, 'with', conversationHistory.length, 'messages');
+    
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 

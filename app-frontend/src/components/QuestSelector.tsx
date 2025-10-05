@@ -67,7 +67,7 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
           Share your precious memories and create beautiful stories for your grandchildren and family. 
-          Choose a memory quest below or tell us about anything else you'd like your grandchildren to know.
+          Choose a memory quest below or tell us about anything else you&apos;d like your grandchildren to know.
         </p>
       </div>
 
@@ -101,7 +101,7 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
         {!showCustomQuest ? (
           <div>
             <p className="text-gray-600 mb-4">
-              Have something special you want your grandchildren to know? Tell us what you'd like to share memories about.
+              Have something special you want your grandchildren to know? Tell us what you&apos;d like to share memories about.
             </p>
             <button
               onClick={() => setShowCustomQuest(true)}
