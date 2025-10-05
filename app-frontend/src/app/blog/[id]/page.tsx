@@ -70,7 +70,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
 
     const shareData = {
       title: blogPost.title,
-      text: `Check out this memory story: ${blogPost.title}`,
+      text: `Check out this grandparent memory story: ${blogPost.title}`,
       url: window.location.href
     };
 
@@ -103,7 +103,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading memory story...</p>
+          <p className="text-gray-600">Loading grandparent memory story...</p>
         </div>
       </div>
     );
@@ -152,7 +152,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
               <ArrowLeft size={24} className="text-gray-600" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Memory Story</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Grandparent Memory Story</h1>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Calendar size={14} />
                 <span>{formatDate(blogPost.createdAt)}</span>

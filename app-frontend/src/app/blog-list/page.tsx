@@ -33,7 +33,7 @@ export default function BlogListPage() {
   };
 
   const deleteBlogPost = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this blog post?')) return;
+    if (!confirm('Are you sure you want to delete this grandparent memory story?')) return;
     
     try {
       const response = await fetch(`/api/blog-posts/${id}`, {
@@ -65,7 +65,7 @@ export default function BlogListPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your memory stories...</p>
+          <p className="text-gray-600">Loading your grandparent memory stories...</p>
         </div>
       </div>
     );
@@ -84,7 +84,7 @@ export default function BlogListPage() {
               <ArrowLeft size={24} className="text-gray-600" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Memory Stories</h1>
+              <h1 className="text-3xl font-bold text-gray-800">Grandparent Memory Stories</h1>
               <p className="text-gray-600">
                 {blogPosts.length} {blogPosts.length === 1 ? 'story' : 'stories'} preserved
               </p>
@@ -107,13 +107,13 @@ export default function BlogListPage() {
         {blogPosts.length === 0 && !isLoading && !error ? (
           <div className="text-center py-16">
             <BookOpen size={64} className="text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-600 mb-2">No Stories Yet</h2>
-            <p className="text-gray-500 mb-6">Start creating memory stories to see them here</p>
+            <h2 className="text-xl font-semibold text-gray-600 mb-2">No Grandparent Stories Yet</h2>
+            <p className="text-gray-500 mb-6">Start creating memory stories to preserve your wisdom for your grandchildren</p>
             <Link
               href="/"
               className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
             >
-              Create Your First Story
+              Create Your First Grandparent Story
             </Link>
           </div>
         ) : (
@@ -157,12 +157,12 @@ export default function BlogListPage() {
                     className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-center text-sm flex items-center justify-center gap-2"
                   >
                     <Eye size={14} />
-                    View Story
+                    View Grandparent Story
                   </Link>
                   <button
                     onClick={() => deleteBlogPost(post.id)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete story"
+                    title="Delete grandparent story"
                   >
                     <Trash2 size={16} />
                   </button>

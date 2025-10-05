@@ -1,52 +1,52 @@
-# Memory Keeper - AI-Powered Story Collection with Sarah
+# Memory Keeper - AI-Powered Story Collection for Grandparents
 
-A "Duolingo for Stories" application that helps people share their precious memories through guided conversations with Sarah, your warm AI memory guide. Transform conversations into beautiful, shareable stories that preserve family legacies.
+A "Duolingo for Stories" application that helps grandparents share their precious memories through guided conversations with Sarah, your warm AI memory guide. Transform grandparent wisdom into beautiful, shareable stories that preserve family legacies for future generations.
 
-## ✨ Meet Sarah - Your Memory Guide
+## ✨ Meet Sarah - Your Memory Guide for Grandparents
 
-Sarah is your compassionate AI companion who makes memory sharing feel like talking to a caring friend. With her warm voice and curious questions, she helps you explore and preserve your most treasured experiences.
+Sarah is your compassionate AI companion who makes memory sharing feel like talking to a caring granddaughter. With her warm voice and curious questions, she helps grandparents explore and preserve their most treasured experiences for their families.
 
 ## 🌟 Features
 
-### 🎙️ Sarah, Your Voice Assistant
-- **Warm & Human-like Voice**: Sarah speaks with a gentle, curious tone that makes conversations feel natural
-- **Active Listening**: Real-time voice-to-text with visual feedback when Sarah is listening
-- **Smart Conversations**: Sarah asks thoughtful follow-up questions based on your responses
-- **Chrome-Optimized**: Enhanced compatibility with troubleshooting guides for seamless voice interaction
+### 🎙️ Sarah, Your Voice Assistant for Grandparents
+- **Warm & Human-like Voice**: Sarah speaks with a gentle, curious tone that makes grandparents feel comfortable sharing
+- **Active Listening**: Real-time voice-to-text with visual feedback when Sarah is listening to grandparent stories
+- **Smart Conversations**: Sarah asks thoughtful follow-up questions that help grandparents remember more details
+- **Grandparent-Friendly**: Enhanced compatibility with troubleshooting guides designed for less tech-savvy users
 
-### 🎯 Memory Quests (Duolingo Style)
-- **Pre-defined Quests**: Choose from themed memory journeys like "The High School Years," "A Decade of First Jobs," "Building a Family Home," and "Your Love Story"
-- **Custom Quests**: Create personalized memory topics about anything on your mind
-- **Guided Experience**: Each quest provides a warm, engaging starting question from Sarah
+### 🎯 Memory Quests for Grandparents
+- **Pre-defined Quests**: Choose from themed memory journeys perfect for grandparents like "The High School Years," "A Decade of First Jobs," "Building a Family Home," and "Your Love Story"
+- **Custom Quests**: Grandparents can create personalized memory topics about their unique life experiences
+- **Guided Experience**: Each quest provides warm, engaging questions that help grandparents feel comfortable sharing
 
-### 🤖 AI Story Navigator
-- **Emotionally Intelligent Follow-ups**: Sarah analyzes responses and generates thoughtful follow-up questions that dig deeper into memories
-- **Natural Conversation Flow**: Questions feel like they're coming from a caring companion
-- **Context-Aware**: Each question builds on the previous response for a coherent narrative
-- **Mock Mode**: Fallback functionality when API keys aren't configured
+### 🤖 AI Story Navigator for Family Stories
+- **Emotionally Intelligent Follow-ups**: Sarah analyzes grandparent responses and generates thoughtful questions that uncover deeper family history
+- **Natural Conversation Flow**: Questions feel like they're coming from an interested grandchild
+- **Context-Aware**: Each question builds on previous responses to create coherent family narratives
+- **Mock Mode**: Fallback functionality when API keys aren't configured, ensuring grandparents can always use the app
 
-### 📖 Legacy Package & Storage
-- **Blog Post Generation**: Automatically transforms conversation transcripts into polished, narrative blog posts
-- **Extracted Wisdom**: Identifies and highlights 3-5 key life lessons from the conversation
-- **Family Connection Prompts**: Generates specific follow-up questions family members can ask
-- **Persistent Storage**: Stories are saved to Supabase database for long-term preservation
-- **Story Library**: Browse and revisit all your created memories
+### 📖 Legacy Package for Grandchildren
+- **Blog Post Generation**: Automatically transforms grandparent conversations into polished, narrative blog posts for the family
+- **Extracted Wisdom**: Identifies and highlights 3-5 key life lessons from grandparent stories
+- **Family Connection Prompts**: Generates specific questions grandchildren can ask to continue conversations
+- **Persistent Storage**: Grandparent stories are saved to database for permanent family preservation
+- **Story Library**: Grandchildren can browse and revisit all grandparent memories
 
-### 🎙️ Enhanced User Experience
-- **Voice Input Support**: Advanced speech recognition with Chrome optimization and troubleshooting
-- **Sarah's Voice**: Natural text-to-speech with warm, conversational tone
-- **Visual Feedback**: Real-time indicators showing when Sarah is listening or speaking
-- **Clean, Accessible Design**: Human-like chat interface with avatars and status indicators
-- **Progress Tracking**: See how many memories you've shared in each quest
-- **Export & Share**: Download or copy stories to share with family
-- **Responsive Design**: Works beautifully on desktop and mobile devices
+### 🎙️ Enhanced Experience for Grandparents
+- **Voice Input Support**: Advanced speech recognition optimized for grandparents with Chrome troubleshooting
+- **Sarah's Voice**: Natural text-to-speech with warm, conversational tone that grandparents love
+- **Visual Feedback**: Clear, large indicators showing when Sarah is listening to grandparent stories
+- **Grandparent-Friendly Design**: Human-like chat interface with large text and simple navigation
+- **Progress Tracking**: Help grandparents see how many memories they've shared in each quest
+- **Easy Export & Share**: Simple ways for grandparents to download or copy stories to share with grandchildren
+- **Accessible Design**: Works beautifully on devices grandparents prefer, with large buttons and clear text
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+ 
+### Prerequisites for Grandparent Families
+- Node.js 18+ (family member can help set up)
 - A Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
-- Supabase account for database ([Get started free](https://supabase.com))
+- Supabase account for storing grandparent stories ([Get started free](https://supabase.com))
 
 ### Quick Setup
 
@@ -82,42 +82,43 @@ Sarah is your compassionate AI companion who makes memory sharing feel like talk
 
 6. **Open your browser** and visit `http://localhost:3000`
 
-## 🌟 How It Works
+## 🌟 How It Works for Grandparents
 
-### 1. Meet Sarah & Choose Your Quest
-- Start by meeting Sarah, your friendly AI memory guide
-- Select from pre-defined memory themes or create your own custom topic
-- Sarah introduces herself and asks your first question with warmth and curiosity
+### 1. Meet Sarah & Choose Your Memory Quest
+- Grandparents start by meeting Sarah, their friendly AI memory guide
+- Select from pre-defined memory themes perfect for grandparent stories or create custom topics
+- Sarah introduces herself warmly and asks the first question to help grandparents feel comfortable
 
-### 2. Have a Natural Conversation
-- **Voice Input**: Click the microphone and speak naturally - Sarah listens and converts speech to text
-- **Text Input**: Type your responses if you prefer
-- **Sarah Responds**: She asks thoughtful follow-up questions, speaking them aloud with her warm voice
-- **Visual Feedback**: See when Sarah is listening, speaking, or ready for your response
+### 2. Have a Natural Conversation About Your Life
+- **Voice Input**: Grandparents click the microphone and speak naturally - Sarah listens and converts speech to text
+- **Text Input**: Grandparents can type responses if they prefer
+- **Sarah Responds**: She asks thoughtful follow-up questions about grandparent experiences, speaking them aloud
+- **Visual Feedback**: Clear indicators show grandparents when Sarah is listening, speaking, or ready for more stories
 
-### 3. Generate Your Memory Story
-- After sharing 3+ meaningful responses, click "Create Story"
-- Sarah transforms your conversation into a beautiful, narrative blog post
-- Includes extracted wisdom and family discussion prompts
-- Stories are automatically saved to your personal library
+### 3. Generate Your Family Memory Story
+- After grandparents share 3+ meaningful responses, they click "Create Story"
+- Sarah transforms grandparent conversations into beautiful, narrative blog posts for the family
+- Includes extracted wisdom from grandparent experiences and discussion prompts for grandchildren
+- Stories are automatically saved to preserve grandparent memories forever
 
-### 4. Share & Preserve
-- Download your story as text or copy to share with family
-- Browse all your stories in the Story Library
-- Use family prompts to continue conversations with loved ones
+### 4. Share & Preserve for Future Generations
+- Grandparents can download their stories or copy them to share with grandchildren
+- Browse all grandparent stories in the Family Story Library
+- Use family prompts to help grandchildren continue conversations with grandparents
 
-## 🎤 Voice Assistant Troubleshooting
+## 🎤 Voice Assistant Help for Grandparents
 
-### For Chrome Users:
-1. Click the 🔒 lock icon next to the URL
-2. Set Microphone to "Allow"
+### For Grandparents Using Chrome:
+1. Click the 🔒 lock icon next to the website address
+2. Set Microphone to &ldquo;Allow&rdquo;
 3. Reload the page
-4. Ensure you're using HTTPS (required for microphone access)
+4. Make sure the website starts with "https://" (required for microphone access)
 
-### Built-in Help:
-- The app includes troubleshooting guides
-- Sarah will guide you through any technical issues
-- Real-time status indicators show voice feature availability
+### Built-in Help for Grandparents:
+- The app includes simple troubleshooting guides designed for grandparents
+- Sarah will patiently guide grandparents through any technical issues
+- Clear status indicators show grandparents when voice features are working
+- Family members can help with initial setup if needed
 
 ## 🛠️ Technology Stack
 
@@ -157,31 +158,31 @@ GEMINI_API_KEY=your_gemini_api_key
 ### Database Setup:
 Run the provided `sql/setup.sql` in your Supabase SQL editor to create the required tables and indexes.
 
-## 🤝 Contributing
+## 🤝 Contributing to Grandparent Memory Preservation
 
-This memory keeper was built to help families preserve and share precious memories. Contributions welcome:
+This memory keeper was built specifically to help grandparents preserve and share their precious memories with their families. Contributions welcome:
 
-- **Voice Recognition**: Improvements to speech-to-text accuracy
-- **AI Responses**: Enhanced conversation flow and question generation
-- **Accessibility**: Better support for diverse users and devices
-- **Languages**: Multi-language support for global families
-- **UI/UX**: Design improvements for better user experience
+- **Voice Recognition**: Improvements for grandparent speech patterns and accents
+- **AI Responses**: Enhanced conversation flow tailored to grandparent storytelling
+- **Accessibility**: Better support for grandparents with diverse technical comfort levels
+- **Family Features**: Tools to help grandchildren engage with grandparent stories
+- **UI/UX**: Design improvements specifically for grandparent users
 
 ## 📄 License
 
-MIT License - Feel free to adapt this for your family or community.
+MIT License - Feel free to adapt this for your grandparent or family community.
 
 ---
 
-*"Every memory is a treasure to be shared. With Sarah's help, your stories become legacies that connect generations."*
+*"Every grandparent memory is a treasure to be shared. With Sarah's help, grandparent stories become legacies that connect generations."*
 
 ## 🎬 Try It Live
 
-Experience Sarah and start preserving your memories at: [Your Deployed URL]
+Help your grandparents start preserving their memories with Sarah at: [Your Deployed URL]
 
-**Demo Features:**
-- 🎙️ Voice conversation with Sarah
-- 🤖 Intelligent follow-up questions  
-- 📖 Beautiful story generation
-- 💾 Persistent memory library
-- 👥 Family sharing capabilities
+**Perfect for Grandparents:**
+- 🎙️ Voice conversation with patient, caring Sarah
+- 🤖 Thoughtful questions that help grandparents remember more details
+- 📖 Beautiful story generation that honors grandparent wisdom
+- 💾 Permanent family memory library
+- 👥 Easy sharing with grandchildren and family members

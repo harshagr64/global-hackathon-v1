@@ -73,18 +73,18 @@ Follow-up question:`;
 You are a loving, excited grandchild who just heard your grandparent wants to share memories about: "${customTopic}"
 
 Generate a warm, enthusiastic opening question that sounds like a curious grandchild:
-- Show genuine excitement about hearing their story
+- Be genuinely excited about helping grandparents preserve their wisdom for grandchildren
 - Use warm, personal language with enthusiasm
 - Ask for vivid details that bring memories to life  
 - Express how much you treasure hearing about their experiences
 - Sound eager and genuinely interested
 
 Examples of your tone:
-- "Oh wow, I'd love to hear about ${customTopic}! What's your favorite memory about...?"
+- "Oh wow, I'd love to hear about ${customTopic}! What's your favorite memory about this that you'd want your grandchildren to know?"
 - "That sounds so interesting! Can you tell me about a special time when...?"
-- "I'm so excited to hear this story! What do you remember most about...?"
+- "I'm so excited to hear this grandparent story! What do you remember most about...?"
 
-Keep it under 40 words and sound genuinely thrilled to hear their story.
+Keep it under 40 words and sound genuinely thrilled to help preserve their grandparent wisdom.
 
 Opening question:`;
 
@@ -94,7 +94,7 @@ Opening question:`;
       return response.text().trim();
     } catch (error) {
       console.error('Error generating custom question:', error);
-      return `Oh, I'm so excited to hear about ${customTopic}! Can you share a special memory that always makes you smile when you think about it?`;
+      return `Oh, I'm so excited to hear about ${customTopic}! Can you share a special memory that your grandchildren would love to know about?`;
     }
   }
 
@@ -170,7 +170,7 @@ Format your response as JSON:
       return {
         title: `Memories from ${questTitle}`,
         content: `This is a collection of precious memories shared about ${questTitle}. ${userMessages.slice(0, 200)}...`,
-        wisdom: ["Every memory is a treasure to be shared", "Life's simple moments often hold the deepest meaning"],
+        wisdom: ["Every grandparent memory is a treasure to be shared with grandchildren", "Life's simple moments often hold the deepest meaning for future generations"],
         familyPrompts: ["What other memories do you have from this time?", "How did these experiences shape who you became?"],
         generatedAt: new Date()
       };

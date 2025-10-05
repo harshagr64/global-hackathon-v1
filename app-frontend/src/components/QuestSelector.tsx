@@ -42,7 +42,7 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
       onQuestSelected(customQuest);
     } catch (error) {
       console.error('Error creating custom quest:', error);
-      alert('Sorry, there was an error creating your custom memory quest. Please try again.');
+      alert('Sorry, there was an error creating your custom memory quest for grandchildren. Please try again.');
     } finally {
       setIsGeneratingCustom(false);
     }
@@ -63,11 +63,11 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
 
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">
-          Memory Keeper
+          Memory Keeper for Grandparents
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Share your precious memories and create beautiful stories for your family. 
-          Choose a memory quest below or tell us about anything else on your mind.
+          Share your precious memories and create beautiful stories for your grandchildren and family. 
+          Choose a memory quest below or tell us about anything else you'd like your grandchildren to know.
         </p>
       </div>
 
@@ -94,14 +94,14 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
         <div className="flex items-center mb-4">
           <PlusCircle className="text-2xl mr-3 text-blue-600" size={32} />
           <h3 className="text-xl font-semibold text-gray-800">
-            Create Your Own Memory Quest
+            Create Your Own Memory Quest for Grandchildren
           </h3>
         </div>
         
         {!showCustomQuest ? (
           <div>
             <p className="text-gray-600 mb-4">
-              Have something else on your mind? Tell us what you&apos;d like to share memories about.
+              Have something special you want your grandchildren to know? Tell us what you'd like to share memories about.
             </p>
             <button
               onClick={() => setShowCustomQuest(true)}
@@ -113,7 +113,7 @@ export default function QuestSelector({ onQuestSelected }: QuestSelectorProps) {
         ) : (
           <div>
             <p className="text-gray-600 mb-4">
-              What would you like to share memories about today?
+              What would you like to share memories about with your grandchildren today?
             </p>
             <div className="flex gap-3">
               <input

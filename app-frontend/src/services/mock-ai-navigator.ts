@@ -3,7 +3,7 @@ import { ConversationMessage, BlogPost } from '@/types/memory-keeper';
 // Mock AI responses for development/demo purposes
 const MOCK_FOLLOW_UP_QUESTIONS = [
   "That sounds fascinating! Can you tell me more about how that made you feel?",
-  "What a wonderful memory! What details from that day still stand out to you?",
+  "What a wonderful memory! What details from that special day still stand out when you think about sharing this with your grandchildren?",
   "That must have been quite an experience. Who else was there with you?",
   "How interesting! What happened next in that story?",
   "That sounds like it was really meaningful to you. What made it so special?",
@@ -13,8 +13,8 @@ const MOCK_FOLLOW_UP_QUESTIONS = [
 ];
 
 const MOCK_CUSTOM_QUESTIONS = [
-  "Tell me about a special memory you have related to that topic. What made it so meaningful to you?",
-  "I'd love to hear about your experiences with that. Can you share a story that comes to mind?",
+  "Tell me about a special memory you have related to that topic. What made it so meaningful that you'd want your grandchildren to know about it?",
+  "I'd love to hear about your experiences with that. Can you share a story that your grandchildren would love to know?",
   "That sounds like something important to you. What's your favorite memory related to that?",
   "Can you take me back to a moment when that was particularly significant in your life?"
 ];
@@ -57,13 +57,13 @@ export class MockAINavigator {
       title: `Memories from ${questTitle}`,
       content: `This is a beautiful collection of memories shared about ${questTitle}.
 
-${userMessages.length > 0 ? userMessages[0].substring(0, 200) + '...' : 'These precious memories tell a story of experiences that have shaped a lifetime of wisdom and love.'}
+${userMessages.length > 0 ? userMessages[0].substring(0, 200) + '...' : 'These precious grandparent memories tell a story of experiences that have shaped a lifetime of wisdom and love to share with future generations.'}
 
-The stories shared reveal not just events, but the emotions, relationships, and moments that truly matter. Each memory is a thread in the rich tapestry of a life well-lived.
+The stories shared reveal not just events, but the emotions, relationships, and moments that truly matter to pass down to grandchildren. Each memory is a thread in the rich tapestry of a grandparent's life well-lived.
 
 These memories remind us that our experiences, both big and small, create the foundation of who we are and the wisdom we pass on to future generations.`,
       wisdom: [
-        "Every memory is a treasure to be shared with those we love.",
+        "Every grandparent memory is a treasure to be shared with those we love.",
         "Life's most precious moments often come from the simplest experiences.",
         "The stories we tell become the legacy we leave behind."
       ],

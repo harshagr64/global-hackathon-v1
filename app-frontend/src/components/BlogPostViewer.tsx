@@ -59,7 +59,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
       setBlogPost({
         title: `Memories from ${session.questTitle}`,
         content: `This is a collection of precious memories shared about ${session.questTitle}.`,
-        wisdom: ["Every memory is a treasure to be shared"],
+        wisdom: ["Every grandparent memory is a treasure to be shared with family"],
         familyPrompts: ["What other memories do you have from this time?"],
         generatedAt: new Date()
       });
@@ -132,9 +132,9 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
       <div className="max-w-4xl mx-auto p-6 h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Creating Your Story</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Creating Your Grandparent Story</h2>
           <p className="text-gray-600">
-            Our AI is carefully crafting your memories into a beautiful story...
+            Our AI is carefully crafting your precious memories into a beautiful story for your grandchildren...
           </p>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
       <div className="max-w-4xl mx-auto p-6 h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">Something went wrong</h2>
-          <p className="text-gray-600 mb-4">We couldn&apos;t generate your story. Please try again.</p>
+          <p className="text-gray-600 mb-4">We couldn&apos;t generate your grandparent story. Please try again.</p>
           <button
             onClick={onBack}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -170,7 +170,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Your Memory Story</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Your Grandparent Memory Story</h1>
             <p className="text-sm text-gray-600">
               Generated on {new Date(blogPost.generatedAt).toLocaleDateString()}
             </p>
@@ -210,8 +210,8 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
               <Check size={20} className="text-green-600" />
             </div>
             <div>
-              <p className="text-green-800 font-medium">Story saved successfully!</p>
-              <p className="text-green-600 text-sm">Your memory story has been preserved for your family.</p>
+              <p className="text-green-800 font-medium">Grandparent Story saved successfully!</p>
+              <p className="text-green-600 text-sm">Your precious memory story has been preserved for your grandchildren and family.</p>
             </div>
           </div>
           {savedBlogId && (
@@ -219,7 +219,7 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
               href={`/blog/${savedBlogId}`}
               className="text-green-700 hover:text-green-800 text-sm underline"
             >
-              View saved story
+              View saved grandparent story
             </Link>
           )}
         </div>
@@ -302,10 +302,10 @@ export default function BlogPostViewer({ session, onBack, onStartNewQuest }: Blo
           onClick={onStartNewQuest}
           className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors text-lg font-medium"
         >
-          Share Another Memory
+          Share Another Grandparent Memory
         </button>
         <p className="text-gray-600 mt-4">
-          Ready to share more precious memories with your family?
+          Ready to share more precious memories with your grandchildren?
         </p>
       </div>
     </div>

@@ -526,7 +526,7 @@ export default function ConversationInterface({
                 <h3 className="text-lg font-semibold text-purple-700">Sarah</h3>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Online & Ready"></div>
               </div>
-              <p className="text-xs text-gray-500">Your Memory Guide & Storytelling Companion</p>
+              <p className="text-xs text-gray-500">Your Grandparent Memory Guide & Storytelling Companion</p>
             </div>
           </div>
           
@@ -616,7 +616,7 @@ export default function ConversationInterface({
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
             >
               <BookOpen size={16} />
-              Create Story
+              Create Grandparent Story
             </button>
           )}
         </div>
@@ -649,7 +649,7 @@ export default function ConversationInterface({
                 {message.type === 'ai' && (
                   <div className="flex items-center gap-2 mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-purple-600">Sarah, Your Memory Guide</span>
+                      <span className="text-xs font-medium text-purple-600">Sarah, Your Grandparent Memory Guide</span>
                       <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" title="Online"></div>
                     </div>
                     {isSpeaking && (
@@ -760,7 +760,7 @@ export default function ConversationInterface({
           <textarea
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
-            placeholder="Tell Sarah about your memory... I'm here to listen and would love to hear every detail! 💕"
+            placeholder="Tell Sarah about your memory... I'm here to listen and would love to hear every detail you want to share with your grandchildren! 💕"
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none min-h-[60px] placeholder:text-gray-400"
             rows={2}
             onKeyPress={(e) => {
@@ -785,8 +785,8 @@ export default function ConversationInterface({
         <p className="text-xs text-gray-500 mt-2">
           Press Enter to send, Shift+Enter for new line. 
           {userMessageCount < 3 
-            ? ` Share ${3 - userMessageCount} more responses to create your story.`
-            : ' You can create your story now or continue sharing!'
+            ? ` Share ${3 - userMessageCount} more responses to create your grandparent story.`
+            : ' You can create your grandparent story now or continue sharing!'
           }
         </p>
         
